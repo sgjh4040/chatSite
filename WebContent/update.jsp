@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+	<%@page import="user.UserDTO" %>
+	<%@page import="user.UserDAO" %>
 <!DOCTYPE html>
 <html>
 <%
@@ -13,6 +15,8 @@
 			response.sendRedirect("index.jsp");
 			return;
 		}
+		
+		UserDTO user = new UserDAO().getUser(userID);
 		
 	%>
 <head>
@@ -51,50 +55,14 @@
 		function showUnread(result){
 			$('#unread').html(result);
 		}
-		
-		function chatBoxFunction() {
-			var userID = '<%=userID%>';
-			$.ajax({
-				type : "POST",
-				url : "./chatBox",
-				data : {
-					userID : encodeURIComponent(userID),
-		
-				},
-				success : function(data) {
-					if(data=="") return;
-					$('#boxTable').html('');
-					var parsed = JSON.parse(data);
-					var result = parsed.result;
-					for(var i = 0; i<result.length; i++){
-						if(result[i][0].value == userID){
-							result[i][0].value = result[i][1].value;
-						}else{
-							result[i][1].value = result[i][0].value;
-						}
-						
-						addBox(result[i][0].value,result[i][1].value,result[i][2].value,result[i][3].value,result[i][4].value);
-					}
-					lastID = Number(parsed.last);
-					
-				}
-		
-			});
-		}
-		function addBox(lastID, toID, chatContent, chatTime, unread){
-			$('#boxTable').append('<tr onclick="location.href=\'chat.jsp?toID='+ encodeURIComponent(toID)+'\'">'+
-					'<td style="width: 150px;"><h5>'+ lastID + '</h5></td>'+
-					'<td>'+
-					'<h5>' + chatContent +
-					'<span class="label label-info">'+unread+'</span></h5>'+
-					'<div class="pull-right">' + chatTime + '</div>'+
-					'</td>'+
-					'</tr>');
-		}
-		function getInfiniteBox(){
-			setInterval(function(){
-				chatBoxFunction(lastID);
-			}, 3000);
+		function passwordCheckFunction() {
+			var userPassword1 = $('#userPassword1').val();
+			var userPassword2 = $('#userPassword2').val();
+			if (userPassword1 != userPassword2) {
+				$('#passwordCheckMessage').html("비밀번호가 일치하지 않습니다.");
+			} else {
+				$('#passwordCheckMessage').html("");
+			}
 		}
 
 
@@ -102,6 +70,7 @@
 </script>
 </head>
 <body>
+<div>test:<%=user.getUserGender()%></div>
 	
 	<nav class="navbar navbar-default">
 		<div class="navbar-header">
@@ -116,29 +85,11 @@
 		<div class="collapse navbar-collapse"
 			id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav">
-				<li ><a href="index.jsp">메인</a>
+				<li class="active"><a href="index.jsp">메인</a>
 				<li><a href="find.jsp">친구찾기</a></li>
-				<li class="active"><a href="box.jsp">메시지함 <span id="unread" class="label label-info"></span> </a></li>
+				<li><a href="box.jsp">메시지함 <span id="unread" class="label label-info"></span> </a></li>
 			</ul>
-			<%
-				if (userID == null) {
-			%>
-			<!-- 오른쪽 정렬 -->
-			<ul class="nav navbar-nav navbar-right">
-				<!-- 아래쪽 내려서 추가적으로 항목 나올수 있게 dropdown -->
-				<li class="dropdown"><a href="#" class="dropdown-toggle"
-					data-toggle="dropdown" role="button" aria-haspoput="ture"
-					aria-expanded="false">접속하기 <span class="caret"> </span>
-				</a>
-					<ul class="dropdown-menu">
-						<li><a href="login.jsp">로그인</a></li>
-						<li><a href="join.jsp">회원가입</a></li>
-					</ul>
-					</li>
-					</ul> <%
-				}else{
-				
-				%>
+			
 					<ul class="nav navbar-nav navbar-right">
 				<!-- 아래쪽 내려서 추가적으로 항목 나올수 있게 dropdown -->
 				<li class="dropdown"><a href="#" class="dropdown-toggle"
@@ -151,26 +102,89 @@
 						
 					</ul>
 					</li>
-					</ul> <%
-				}
-			%>
+					</ul> 
 		</div>
 
 	</nav>
+	
+	<!-- 회원 정보 수정 양식--------------------------->
 	<div class="container">
-		<table class="table" style="margin:0 auto;">
-			<thead>
-			<tr>
-				<th><h4>주고받은 메시지 목록</h4></th>
-			</tr>
-			</thead>
-			<div style="overflow-y: auto; width: 100%; max-height: 450px;">
-				<table class="table table-bordered table-hover" style="text-align: center; border: 1px solid #dddddd; margin:0 auto;" >
-					<tbody id="boxTable">
-					</tbody>
-				</table>
-			</div>
-		</table>
+		<form method="post" action="./userUpdate">
+			<table class="table table-bordered table-hover"
+				style="text-align: center; border: 1px solid #ddddd">
+				<thead>
+					<tr>
+						<th colspan="3"><h4>회원정보 수정양식</h4></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="width: 110px;"><h5>아이디</h5></td>
+						<td><h5><%=user.getUserID() %></h5></td>
+						<input type="hidden" name="userID" value="<%=user.getUserID()%>">
+					</tr>
+					<tr>
+						<td style="width: 110px;"><h5>비밀번호</h5></td>
+						<td colspan="2" style="width: 110px;"><input
+							onkeyup="passwordCheckFunction();" class="form-control"
+							id="userPassword1" type="password" name="userPassword1"
+							placeholder="비밀번호를 입력하세요"></td>
+					</tr>
+					<tr>
+						<td style="width: 110px;"><h5>비밀번호 확인</h5></td>
+						<td colspan="2" style="width: 110px;"><input
+							onkeyup="passwordCheckFunction();" class="form-control"
+							id="userPassword2" type="password" name="userPassword2"
+							placeholder="비밀번호 확인을 입력하세요"></td>
+					</tr>
+					<tr>
+						<td style="width: 110px;"><h5>이름</h5></td>
+						<td colspan="2" style="width: 110px;"><input
+							class="form-control" id="userName" type="text" name="userName"
+							placeholder="이름을 입력하세요" value="<%=user.getUserName()%>"></td>
+					</tr>
+					<tr>
+						<td style="width: 110px;"><h5>나이</h5></td>
+						<td colspan="2" style="width: 110px;"><input
+							class="form-control" id="userAge" type="number" name="userAge"
+							placeholder="나이를 입력하세요" value="<%=user.getUserAge()%>"></td>
+					</tr>
+					<tr>
+						<td style="width: 110px;"><h5>성별</h5></td>
+						<td colspan="2">
+							<div class="form-group"
+								style="text-align: center; nmargin: 0 auto;">
+								<div class="btn-group" data-toggle="buttons">
+									<label class="btn btn-primary <% if(user.getUserGender().equals("남자")) out.print("active");%>"> <input
+										type="radio" name="userGender" autocomplete="off" value=
+										<% if(user.getUserGender().equals("남자")) out.print("checked");%>>남자
+									</label> <label class="btn btn-primary <% if(user.getUserGender().equals("여자")) out.print("active");%>"> <input type="radio"
+										name="userGender" autocomplete="off" value="여자" <% if(user.getUserGender().equals("여자")) out.print("checked");%>>여자
+									</label>
+								</div>
+
+							</div>
+
+
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 110px;"><h5>이메일</h5></td>
+
+						<td colspan="2" style="width: 110px;"><input
+							class="form-control" id="userEmail" type="email" name="userEmail"
+							placeholder="이메일을 입력하세요" value="<%=user.getUserEmail()%>"></td>
+					</tr>
+					<tr>
+						<td style="text-align:left;" colspan="3"><h5 style="color:red;"id="passwordCheckMessage"></h5><input class="btn btn-primary pull-right" type="submit"value="수정"></td>
+					</tr>
+
+
+				</tbody>
+
+			</table>
+
+		</form>
 	</div>
 
 	<%
@@ -229,8 +243,6 @@
 		$(document).ready(function(){
 			getUnread();
 			getInfiniteUnread();
-			chatBoxFunction();
-			getInfiniteBox();
 		});
 		
 		

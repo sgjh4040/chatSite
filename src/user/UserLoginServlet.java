@@ -21,6 +21,7 @@ public class UserLoginServlet extends HttpServlet {
 		response.setContentType("text/html;charset=UTF-8");
 		String userID = request.getParameter("userID");
 		String userPassword = request.getParameter("userPassword");
+		System.out.println("userLoginservlet");
 		
 		if(userID == null || userID.equals("")|| userPassword==null || userPassword.equals("")) {
 			

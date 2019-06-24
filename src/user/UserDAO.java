@@ -122,4 +122,70 @@ public class UserDAO {
 		return -1; //데이터 베이스 오류
 		
 	}
+	public UserDTO getUser(String userID) {
+		UserDTO user = new UserDTO();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String SQL = "select * from User where userID = ?";
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, userID);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				user.setUserID(userID);
+				user.setUsrPassword(rs.getString("userPassword"));
+				user.setUserName(rs.getString("userName"));
+				user.setUserAge(rs.getInt("userAge"));
+				user.setUserGender(rs.getString("userGender"));
+				user.setUserEmail(rs.getString("userEmail"));
+				user.setUserProfile(rs.getString("userProfile"));
+				
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(rs != null) rs.close();
+				if(pstmt != null) pstmt.close();
+				if(conn != null) conn.close();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return user; //데이터 베이스 오류
+		
+	}
+	public int update(String userID,String userPassword, String userName, String userAge, String userGender, String userEmail) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String SQL = "update user set userpassword=?, userName=?, userAge=?, userGender=?, userEmail=? where userID=?";
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, userPassword);
+			pstmt.setString(2, userName);
+			pstmt.setInt(3, Integer.parseInt(userAge));
+			pstmt.setString(4, userGender);
+			pstmt.setString(5, userEmail);
+			pstmt.setString(6, userID);
+			
+			
+			return pstmt.executeUpdate();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(pstmt != null) pstmt.close();
+				if(conn != null) conn.close();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return -1; //데이터 베이스 오류
+		
+	}
 }
