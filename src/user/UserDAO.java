@@ -188,4 +188,30 @@ public class UserDAO {
 		return -1; //데이터 베이스 오류
 		
 	}
+	
+	public int profile(String userID, String userProfile) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String SQL = "update user set userProfile=? where userID=?";
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, userProfile);
+			pstmt.setString(2, userID);
+			
+			return pstmt.executeUpdate();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(pstmt != null) pstmt.close();
+				if(conn != null) conn.close();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return -1; //데이터 베이스 오류
+		
+	}
 }

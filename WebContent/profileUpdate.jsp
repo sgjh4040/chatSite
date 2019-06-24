@@ -97,9 +97,10 @@
 					aria-expanded="false">회원관리 <span class="caret"> </span>
 				</a>
 					<ul class="dropdown-menu">
-						<li><a href="./update.jsp">회원정보수정</a></li>
+						<li><a href="./update.jsp">수정</a></li>
 						<li><a href="./profileUpdate.jsp">프로필 업데이트</a></li>
 						<li><a href="./logoutAction.jsp">로그아웃</a></li>
+						
 						
 					</ul>
 					</li>
@@ -110,12 +111,12 @@
 	
 	<!-- 회원 정보 수정 양식--------------------------->
 	<div class="container">
-		<form method="post" action="./userUpdate">
+		<form method="post" action="./userProfile" enctype="multipart/form-data">
 			<table class="table table-bordered table-hover"
 				style="text-align: center; border: 1px solid #ddddd">
 				<thead>
 					<tr>
-						<th colspan="3"><h4>회원정보 수정양식</h4></th>
+						<th colspan="3"><h4>프로필 수정 양식</h4></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -125,59 +126,22 @@
 						<input type="hidden" name="userID" value="<%=user.getUserID()%>">
 					</tr>
 					<tr>
-						<td style="width: 110px;"><h5>비밀번호</h5></td>
-						<td colspan="2" style="width: 110px;"><input
-							onkeyup="passwordCheckFunction();" class="form-control"
-							id="userPassword1" type="password" name="userPassword1"
-							placeholder="비밀번호를 입력하세요"></td>
-					</tr>
-					<tr>
-						<td style="width: 110px;"><h5>비밀번호 확인</h5></td>
-						<td colspan="2" style="width: 110px;"><input
-							onkeyup="passwordCheckFunction();" class="form-control"
-							id="userPassword2" type="password" name="userPassword2"
-							placeholder="비밀번호 확인을 입력하세요"></td>
-					</tr>
-					<tr>
-						<td style="width: 110px;"><h5>이름</h5></td>
-						<td colspan="2" style="width: 110px;"><input
-							class="form-control" id="userName" type="text" name="userName"
-							placeholder="이름을 입력하세요" value="<%=user.getUserName()%>"></td>
-					</tr>
-					<tr>
-						<td style="width: 110px;"><h5>나이</h5></td>
-						<td colspan="2" style="width: 110px;"><input
-							class="form-control" id="userAge" type="number" name="userAge"
-							placeholder="나이를 입력하세요" value="<%=user.getUserAge()%>"></td>
-					</tr>
-					<tr>
-						<td style="width: 110px;"><h5>성별</h5></td>
-						<td colspan="2">
-							<div class="form-group"
-								style="text-align: center; nmargin: 0 auto;">
-								<div class="btn-group" data-toggle="buttons">
-									<label class="btn btn-primary <% if(user.getUserGender().equals("남자")) out.print("active");%>"> <input
-										type="radio" name="userGender" autocomplete="off" value=
-										<% if(user.getUserGender().equals("남자")) out.print("checked");%>>남자
-									</label> <label class="btn btn-primary <% if(user.getUserGender().equals("여자")) out.print("active");%>"> <input type="radio"
-										name="userGender" autocomplete="off" value="여자" <% if(user.getUserGender().equals("여자")) out.print("checked");%>>여자
-									</label>
-								</div>
-
+						<td style="width: 110px;"><h5>사진 업로드</h5></td>
+						
+						<td colspan="2" >
+							<input type="file" name="userProfile" class="file">
+							<div class="input-group col-xs-12">
+								<span class="input-group-addon"><i class="glyphicon glyphicon-picture"></i></span>
+								<input type="text" class="form-control input-lg" disabled placeholder="이미지를 업로드하세요.">
+								<span class="input-group-btn">
+									<button class="browse btn btn-primary input-lg" type="button"><i class="glyphicon glyphicon-search">파일찾기</i></button>
+								</span>
 							</div>
-
-
 						</td>
 					</tr>
+					
 					<tr>
-						<td style="width: 110px;"><h5>이메일</h5></td>
-
-						<td colspan="2" style="width: 110px;"><input
-							class="form-control" id="userEmail" type="email" name="userEmail"
-							placeholder="이메일을 입력하세요" value="<%=user.getUserEmail()%>"></td>
-					</tr>
-					<tr>
-						<td style="text-align:left;" colspan="3"><h5 style="color:red;"id="passwordCheckMessage"></h5><input class="btn btn-primary pull-right" type="submit"value="수정"></td>
+						<td style="text-align:left;" colspan="3"><h5 style="color:red;"></h5><input class="btn btn-primary pull-right" type="submit"value="등록"></td>
 					</tr>
 
 
@@ -251,6 +215,16 @@
 		<%
 	}
 		%>
+		<script type="text/javascript">
+			$(document).on('click', '.browse',function(){
+				var file = $(this).parent().parent().parent().find('.file');
+				file.trigger('click');
+			});
+			$(document).on('change', '.file', function(){
+				$(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+			});
+		
+		</script>
 
 </body>
 </html>
