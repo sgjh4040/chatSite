@@ -281,10 +281,6 @@ public class ChatDAO {
 				return rs.getInt("Count(chatID)");
 			}
 			return 0;
-			
-			
-			
-			
 		}catch(Exception e) {
 			e.printStackTrace();
 		}finally {
