@@ -266,6 +266,7 @@ public class ChatDAO {
 		return -1; //데이터베이스 오류
 	}
 	public int getUnreadChat(String fromID, String toID) {
+		System.out.println("getUnreadChat 메소드 동작");
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -278,7 +279,9 @@ public class ChatDAO {
 			rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
+				
 				return rs.getInt("Count(chatID)");
+				
 			}
 			return 0;
 		}catch(Exception e) {
