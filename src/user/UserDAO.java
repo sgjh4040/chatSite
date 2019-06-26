@@ -214,4 +214,39 @@ public class UserDAO {
 		return -1; //데이터 베이스 오류
 		
 	}
+	
+	//프로필 이미지 사진 경로 반환
+	public String getProfile(String userID) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String SQL = "Select userProfile from user where userID = ?";
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, userID);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				if(rs.getString("userProfile").equals("")){
+					//방금 회원가입한 경우 기본아이콘 출력할수 있도록
+					return "http://localhost:8080/UserChat/images/icon.png";
+				}
+			}
+			return "http://localhost:8080/UserChat/upload/" + rs.getString("userProfile");
+			
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(pstmt != null) pstmt.close();
+				if(conn != null) conn.close();
+				if(conn != null) conn.close();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return "http://localhost:8080/UserChat/images/icon.png"; //데이터 베이스 오류
+		
+	}
 }

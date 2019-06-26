@@ -2,6 +2,8 @@
 	pageEncoding="UTF-8"%>
 	<%@page import="user.UserDTO" %>
 	<%@page import="user.UserDAO" %>
+	<%@page import="board.BoardDTO" %>
+	<%@page import="board.BoardDAO" %>
 <!DOCTYPE html>
 <html>
 <%
@@ -17,6 +19,23 @@
 		}
 		
 		UserDTO user = new UserDAO().getUser(userID);
+		String boardID = request.getParameter("boardID");
+		if(boardID == null || boardID.equals("")){
+			session.setAttribute("messageType", "오류 메시지");
+			session.setAttribute("messageContent", "접근할수 없습니다.");
+			response.sendRedirect("index.jsp");
+			return;
+		}
+		BoardDAO boardDAO = new BoardDAO();
+		BoardDTO board = boardDAO.getBoard(boardID);
+		
+		//게시자 작성자만 수정 가능
+		if(!userID.equals(board.getUserID())){
+			session.setAttribute("messageType", "오류 메시지");
+			session.setAttribute("messageContent", "접근할수 없습니다.");
+			response.sendRedirect("index.jsp");
+			return;
+		}
 		
 	%>
 <head>
@@ -111,12 +130,12 @@
 	
 	<!-- 회원 정보 수정 양식--------------------------->
 	<div class="container">
-		<form method="post" action="./userProfile" enctype="multipart/form-data">
+		<form method="post" action="./boardUpdate" enctype="multipart/form-data">
 			<table class="table table-bordered table-hover"
 				style="text-align: center; border: 1px solid #ddddd">
 				<thead>
 					<tr>
-						<th colspan="3"><h4>프로필 수정 양식</h4></th>
+						<th colspan="3"><h4>게시글 작성 양식</h4></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -124,16 +143,29 @@
 						<td style="width: 110px;"><h5>아이디</h5></td>
 						<td><h5><%=user.getUserID() %></h5>
 						<input type="hidden" name="userID" value="<%=user.getUserID()%>"></td>
+						<input type="hidden" name="boardID" value="<%=board.getBoardID()%>"></td>
 						
 					</tr>
 					<tr>
-						<td style="width: 110px;"><h5>사진 업로드</h5></td>
+						<td style="width: 110px;"><h5>글 제목</h5></td>
+						<td>
+							<input class="form-control" type="text" maxlength="50" name="boardTitle" placeholder="글제목을 입력하세요" value="<%=board.getBoardTitle()%>">
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 110px;"><h5>글 내용</h5></td>
+						<td>
+							<textarea class="form-control" rows="10" name="boardContent" maxlength="2048" placeholder="글 내용을 입력하세요"><%=board.getBoardContent()%></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 110px;"><h5>파일 업로드</h5></td>
 						
 						<td colspan="2" >
-							<input type="file" name="userProfile" class="file">
+							<input type="file" name="boardFile" class="file">
 							<div class="input-group col-xs-12">
 								<span class="input-group-addon"><i class="glyphicon glyphicon-picture"></i></span>
-								<input type="text" class="form-control input-lg" disabled placeholder="이미지를 업로드하세요.">
+								<input type="text" class="form-control input-lg" disabled placeholder="<%=board.getBoardfile()%>">
 								<span class="input-group-btn">
 									<button class="browse btn btn-primary input-lg" type="button"><i class="glyphicon glyphicon-search">파일찾기</i></button>
 								</span>
@@ -142,7 +174,7 @@
 					</tr>
 					
 					<tr>
-						<td style="text-align:left;" colspan="3"><h5 style="color:red;"></h5><input class="btn btn-primary pull-right" type="submit"value="등록"></td>
+						<td style="text-align:left;" colspan="3"><h5 style="color:red;"></h5><input class="btn btn-primary pull-right" type="submit"value="수정"></td>
 					</tr>
 
 

@@ -24,18 +24,21 @@ public class ChatListServlet extends HttpServlet {
 		response.setContentType("text/html;charset=UTF-8");
 		String fromID = request.getParameter("fromID");
 		String toID = request.getParameter("toID");
+		
 		String listType = request.getParameter("ListType");
 		if(fromID == null || fromID.equals("")||toID == null || toID.equals("")||listType == null || listType.equals("")) response.getWriter().write("");
 		else if(listType.equals("ten")) response.getWriter().write(getTen(URLDecoder.decode(fromID,"UTF-8"),URLDecoder.decode(toID,"UTF-8")));
 		else {
 			try {
 				HttpSession session = request.getSession();
-				if(!fromID.equals((String)session.getAttribute("userID"))) {
+				String userID = (String)session.getAttribute("userID");
+				System.out.println("로그인ID:"+userID);
+				System.out.println("fromID:"+fromID); 
+				userID = URLDecoder.decode(userID,"UTF-8");
+				if(!URLDecoder.decode(fromID,"UTF-8").equals((String)session.getAttribute("userID"))) {
 					response.getWriter().write("");
 					return;
 				}
-				
-				
 				response.getWriter().write(getID(URLDecoder.decode(fromID,"UTF-8"),URLDecoder.decode(toID,"UTF-8"),listType));
 			}catch(Exception e){
 				response.getWriter().write("");
@@ -62,6 +65,7 @@ public class ChatListServlet extends HttpServlet {
 		result.append("], \"last\":\""+chatList.get(chatList.size()-1).getChatID()+"\"}");
 		//메시지를 읽었을떄 읽었음을 확인
 		chatDAO.readChat(fromID, toID);
+		System.out.println(result.toString());
 		return result.toString();
 	}
 	public String getID(String fromID, String toID,String chatID) {

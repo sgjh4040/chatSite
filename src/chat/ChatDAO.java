@@ -121,6 +121,7 @@ public class ChatDAO {
 		}
 		return chatList;
 	}
+	//가장 최근의 대화내용을 뽑아낸다
 	public ArrayList<ChatDTO> getBox(String userID){
 		ArrayList<ChatDTO> chatList = null;
 		Connection conn =null;

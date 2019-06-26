@@ -26,23 +26,27 @@
 		var userID = $('#findID').val();
 		$.ajax({
 			type:"POST",
-			url: './UserRegisterCheckServlet',
+			url: './UserFindServlet',
 			data: {userID: userID},
 			success: function(result){
-				if(result==0){
-					$('#checkMessage').html("친구찾기에 성공하였습니다.");
-					$('#checkType').attr('class', 'modal-content panel-success');
-					getFriend(userID);
-				}else{
+				if(result==-1){
 					$('#checkMessage').html("친구를 찾을수 없습니다.");
 					$('#checkType').attr('class', 'modal-content panel-warning');
 					failFriend();
+					
+				}
+				else{
+					$('#checkMessage').html("친구찾기에 성공하였습니다.");
+					$('#checkType').attr('class', 'modal-content panel-success');
+					var data= JSON.parse(result);
+					var profile = data.userProfile;
+					getFriend(userID, profile);
 				}
 				$('#checkModal').modal("show");
 			}
 		});
 	}
-	function getFriend(findID){
+	function getFriend(findID, userProfile){
 		$('#friendResult').html('<thread>'+
 				'<tr>'+
 				'<th><h4>검색결과</h4></th>'+
@@ -50,7 +54,9 @@
 				'</thread>'+
 				'<tbody>'+
 				'<tr>'+
-				'<td style="text=align:center;"><h3>'+findID + '</h3><a href="chat.jsp?toID='+encodeURIComponent(findID)+'"class="btn btn-primary pull-right">'+ '메시지 보내기</a></td>'+
+				'<td style="text=align:center;">'+
+				'<img class="media-object img-circle"style="max-width:300px; margin:0 auto;"src="' + userProfile+'">'+
+				'<h3>'+findID + '</h3><a href="chat.jsp?toID='+encodeURIComponent(findID)+'"class="btn btn-primary pull-right">'+ '메시지 보내기</a></td>'+
 				'</tr>'+
 				'</tbody>');
 		
@@ -107,6 +113,7 @@
 				<li ><a href="index.jsp">메인</a>
 				<li class="active"><a href="find.jsp">친구찾기</a></li>
 				<li><a href="box.jsp">메시지함 <span id="unread" class="label label-info"></span> </a></li>
+				<li class="active"><a href="boardView.jsp">게시판</a></li>
 			</ul>
 			
 					<ul class="nav navbar-nav navbar-right">

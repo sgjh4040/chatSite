@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import user.UserDAO;
+
 /**
  * Servlet implementation class ChatBoxServlet
  */
@@ -23,6 +25,8 @@ public class ChatBoxServlet extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html;charset=UTF-8");
 		String userID = request.getParameter("userID");
+		userID = URLDecoder.decode(userID,"UTF-8");
+		System.out.println("userID:"+userID);
 		if(userID == null || userID.equals("")) {
 			response.getWriter().write("");
 		}else {
@@ -35,7 +39,8 @@ public class ChatBoxServlet extends HttpServlet {
 				
 				
 				
-				userID = URLDecoder.decode(userID,"UTF-8");
+				
+				System.out.println("testuserID:"+userID);
 				response.getWriter().write(getBox(userID));
 				
 			}catch(Exception e) {
@@ -54,16 +59,23 @@ public class ChatBoxServlet extends HttpServlet {
 		for(int i = chatList.size()-1; i>=0;i--) {
 			//얼마나 않읽었는가 확인 String
 			String unread="";
+			String userProfile = "";
 			if(userID.equals(chatList.get(i).getToID())) {
 				unread = chatDAO.getUnreadChat(chatList.get(i).getFromID(), userID)+"";
 				if(unread.equals("0")) unread="";
+			}
+			if(userID.equals(chatList.get(i).getToID())) {
+				userProfile = new UserDAO().getProfile(chatList.get(i).getFromID());
+			}else {
+				userProfile = new UserDAO().getProfile(chatList.get(i).getToID());
 			}
 			
 			result.append("[{\"value\":\""+ chatList.get(i).getFromID()+"\"},");
 			result.append("{\"value\":\""+ chatList.get(i).getToID()+"\"},");
 			result.append("{\"value\":\""+ chatList.get(i).getChatContent()+"\"},");
 			result.append("{\"value\":\""+ chatList.get(i).getChatTime()+"\"},");
-			result.append("{\"value\":\""+ unread+"\"}]");
+			result.append("{\"value\":\""+ unread+"\"},");
+			result.append("{\"value\":\""+ userProfile+"\"}]");
 			//i가 마지막 원소가 아니면 ,로 추가한다. 메세지가 더 있다는것을 알려줌
 			if(i != 0) result.append(",");
 			

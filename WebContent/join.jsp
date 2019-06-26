@@ -10,7 +10,7 @@
 <link rel="shortcut icon" href="#" />
 <title>Ajax 실시간 회원제 채팅서비스</title>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script src="js/bootstrap.js"></script>W
+<script src="js/bootstrap.js"></script>
 <script type="text/javascript">
 	function registerCheckFunction() {
 		var userID = $('#userID').val();

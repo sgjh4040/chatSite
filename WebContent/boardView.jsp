@@ -1,7 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-	<%@page import="user.UserDTO" %>
-	<%@page import="user.UserDAO" %>
+	<%@page import="board.BoardDAO" %>
+	<%@page import="board.BoardDTO" %>
+	<%@page import="java.util.ArrayList" %>
 <!DOCTYPE html>
 <html>
 <%
@@ -16,8 +17,7 @@
 			return;
 		}
 		
-		UserDTO user = new UserDAO().getUser(userID);
-		
+		ArrayList<BoardDTO> boardList = new BoardDAO().getList();
 	%>
 <head>
 <meta charset="UTF-8">
@@ -55,22 +55,12 @@
 		function showUnread(result){
 			$('#unread').html(result);
 		}
-		function passwordCheckFunction() {
-			var userPassword1 = $('#userPassword1').val();
-			var userPassword2 = $('#userPassword2').val();
-			if (userPassword1 != userPassword2) {
-				$('#passwordCheckMessage').html("비밀번호가 일치하지 않습니다.");
-			} else {
-				$('#passwordCheckMessage').html("");
-			}
-		}
 
 
 
 </script>
 </head>
 <body>
-<div>test:<%=user.getUserGender()%></div>
 	
 	<nav class="navbar navbar-default">
 		<div class="navbar-header">
@@ -85,11 +75,30 @@
 		<div class="collapse navbar-collapse"
 			id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav">
-				<li class="active"><a href="index.jsp">메인</a>
+				<li ><a href="index.jsp">메인</a>
 				<li><a href="find.jsp">친구찾기</a></li>
 				<li><a href="box.jsp">메시지함 <span id="unread" class="label label-info"></span> </a></li>
+				<li class="active"><a href="boardView.jsp">게시판</a></li>
 			</ul>
-			
+			<%
+				if (userID == null) {
+			%>
+			<!-- 오른쪽 정렬 -->
+			<ul class="nav navbar-nav navbar-right">
+				<!-- 아래쪽 내려서 추가적으로 항목 나올수 있게 dropdown -->
+				<li class="dropdown"><a href="#" class="dropdown-toggle"
+					data-toggle="dropdown" role="button" aria-haspoput="ture"
+					aria-expanded="false">접속하기 <span class="caret"> </span>
+				</a>
+					<ul class="dropdown-menu">
+						<li><a href="login.jsp">로그인</a></li>
+						<li><a href="join.jsp">회원가입</a></li>
+					</ul>
+					</li>
+					</ul> <%
+				}else{
+				
+				%>
 					<ul class="nav navbar-nav navbar-right">
 				<!-- 아래쪽 내려서 추가적으로 항목 나올수 있게 dropdown -->
 				<li class="dropdown"><a href="#" class="dropdown-toggle"
@@ -97,60 +106,72 @@
 					aria-expanded="false">회원관리 <span class="caret"> </span>
 				</a>
 					<ul class="dropdown-menu">
-						<li><a href="./update.jsp">수정</a></li>
+						<li><a href="./update.jsp">회원정보수정</a></li>
 						<li><a href="./profileUpdate.jsp">프로필 업데이트</a></li>
 						<li><a href="./logoutAction.jsp">로그아웃</a></li>
 						
 						
 					</ul>
 					</li>
-					</ul> 
+					</ul> <%
+				}
+			%>
 		</div>
 
 	</nav>
-	
-	<!-- 회원 정보 수정 양식--------------------------->
 	<div class="container">
-		<form method="post" action="./userProfile" enctype="multipart/form-data">
-			<table class="table table-bordered table-hover"
-				style="text-align: center; border: 1px solid #ddddd">
-				<thead>
-					<tr>
-						<th colspan="3"><h4>프로필 수정 양식</h4></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td style="width: 110px;"><h5>아이디</h5></td>
-						<td><h5><%=user.getUserID() %></h5>
-						<input type="hidden" name="userID" value="<%=user.getUserID()%>"></td>
-						
-					</tr>
-					<tr>
-						<td style="width: 110px;"><h5>사진 업로드</h5></td>
-						
-						<td colspan="2" >
-							<input type="file" name="userProfile" class="file">
-							<div class="input-group col-xs-12">
-								<span class="input-group-addon"><i class="glyphicon glyphicon-picture"></i></span>
-								<input type="text" class="form-control input-lg" disabled placeholder="이미지를 업로드하세요.">
-								<span class="input-group-btn">
-									<button class="browse btn btn-primary input-lg" type="button"><i class="glyphicon glyphicon-search">파일찾기</i></button>
-								</span>
-							</div>
-						</td>
-					</tr>
+		<table class="table table-bordered table-hover" style="text-aling:center;boarder:1px solid #dddddd">
+			<thead>
+				<tr>
+					<th colspan="5"><h4>자유 게시판</h4></th>
+				</tr>
+				<tr>
+					<th style="background-color: #fafafa; color: #000000; width:70px;"><h5>번호</h5></th>
+					<th style="background-color: #fafafa; color: #000000; "><h5>제목</h5></th>
+					<th style="background-color: #fafafa; color: #000000; "><h5>작성자</h5></th>
+					<th style="background-color: #fafafa; color: #000000; width:100px;"><h5>작성 날짜</h5></th>
+					<th style="background-color: #fafafa; color: #000000; width:70px;"><h5>조회수</h5></th>
 					
-					<tr>
-						<td style="text-align:left;" colspan="3"><h5 style="color:red;"></h5><input class="btn btn-primary pull-right" type="submit"value="등록"></td>
-					</tr>
+				</tr>
+				
+			</thead>
+			<tbody>
+			<%
+				for(int i=0 ; i<boardList.size(); i++){	
+					BoardDTO board = boardList.get(i);
+				
+			%>
+				<tr>
+					<td><%=board.getBoardID() %></td>
+					<td style="text-align:left;"><a href="boardShow.jsp?boardID=<%=board.getBoardID() %>">
+					<%
+							for(int j=0; j<board.getBoardLevel(); j++){
+					%>
+						<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+					
+					<%
+							}
+					%>
+					<%=board.getBoardTitle()%></a></td>
 
-
-				</tbody>
-
-			</table>
-
-		</form>
+					<td><%=board.getUserID()%></td>
+					<td><%=board.getBoardDate()%></td>
+					<td><%=board.getBoardHit()%></td>
+				</tr>
+				
+			<%
+				}
+			%>	
+				
+				<tr>
+					<td colspan="5"><a href="boardWrite.jsp" class="btn btn-primary pull-right" type="submit">글쓰기</a></td>
+				</tr>
+			
+			</tbody>
+		
+		</table>
+	
+	
 	</div>
 
 	<%
@@ -216,16 +237,6 @@
 		<%
 	}
 		%>
-		<script type="text/javascript">
-			$(document).on('click', '.browse',function(){
-				var file = $(this).parent().parent().parent().find('.file');
-				file.trigger('click');
-			});
-			$(document).on('change', '.file', function(){
-				$(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
-			});
-		
-		</script>
 
 </body>
 </html>
