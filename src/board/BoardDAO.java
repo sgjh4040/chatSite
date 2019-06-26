@@ -28,7 +28,7 @@ public class BoardDAO {
 	public int write(String userID, String boardTitle, String boardContent, String boardFile, String boardRealFile) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-		String SQL = "insert into Board Select ?, IFNULL((select MAX(boardID) +1 From Board),1), ? , ? ,now(), 0, ?, ?, IFNULL((Select max(boardGroup) + 1 From board), 0), 0, 0";
+		String SQL = "insert into Board Select ?, IFNULL((select MAX(boardID) +1 From Board),1), ? , ? ,now(), 0, ?, ?, IFNULL((Select max(boardGroup) + 1 From board), 0), 0, 0, 1";
 		try {
 			conn = dataSource.getConnection();
 			pstmt = conn.prepareStatement(SQL);
@@ -77,6 +77,7 @@ public class BoardDAO {
 				board.setBoardGroup(rs.getInt("boardGroup"));
 				board.setBoardSequence(rs.getInt("boardSequence"));
 				board.setBoardLevel(rs.getInt("boardLevel"));
+				board.setBoardAvailable(rs.getInt("boardAvailable"));
 				
 			}
 			
@@ -94,16 +95,18 @@ public class BoardDAO {
 		return board; //데이터 베이스 오류
 		
 	}
-	//boardID 의 정보를 뽑아내는 메소드
-		public ArrayList<BoardDTO> getList() {
+	
+		public ArrayList<BoardDTO> getList(String pageNumber) {
 			ArrayList<BoardDTO> boardList = null;
 			Connection conn = null;
 			PreparedStatement pstmt = null;
 			ResultSet rs = null;
-			String SQL = "select * from Board ORDER By boardGroup DESC, boardSequence ASC";
+			String SQL = "select * from Board WHERE boardGroup > (Select MAX(boardGroup) from board) - ? AND boardGroup <= (SELECT MAX(boardGroup) from board) - ? ORDER BY boardGroup DESC, boardSequence ASC";
 			try {
 				conn = dataSource.getConnection();
 				pstmt = conn.prepareStatement(SQL);
+				pstmt.setInt(1, Integer.parseInt(pageNumber)*10);
+				pstmt.setInt(2, (Integer.parseInt(pageNumber)-1)*10);
 				rs = pstmt.executeQuery();
 				boardList = new ArrayList<BoardDTO>(); 
 				while(rs.next()) {
@@ -119,6 +122,7 @@ public class BoardDAO {
 					board.setBoardGroup(rs.getInt("boardGroup"));
 					board.setBoardSequence(rs.getInt("boardSequence"));
 					board.setBoardLevel(rs.getInt("boardLevel"));
+					board.setBoardAvailable(rs.getInt("boardAvailable"));
 					
 					boardList.add(board);
 				}
@@ -255,7 +259,7 @@ public class BoardDAO {
 		public int delete(String boardID) {
 			Connection conn = null;
 			PreparedStatement pstmt = null;
-			String SQL = "delete from board where boardID =?";
+			String SQL = "update board set boardAvailable = 0 where boardID =?";
 			try {
 				conn = dataSource.getConnection();
 				pstmt = conn.prepareStatement(SQL);
@@ -280,7 +284,7 @@ public class BoardDAO {
 		public int reply(String userID, String boardTitle, String boardContent, String boardFile, String boardRealFile, BoardDTO parent) {
 			Connection conn = null;
 			PreparedStatement pstmt = null;
-			String SQL = "insert into Board Select ?, IFNULL((select MAX(boardID) +1 From Board),1), ? , ? ,now(), 0 , ? , ? , ? , ? , ?";
+			String SQL = "insert into Board Select ?, IFNULL((select MAX(boardID) +1 From Board),1), ? , ? ,now(), 0 , ? , ? , ? , ? , ?, 1";
 			try {
 				conn = dataSource.getConnection();
 				pstmt = conn.prepareStatement(SQL);
@@ -333,6 +337,67 @@ public class BoardDAO {
 			}
 			return -1; //데이터 베이스 오류
 			
+		}
+		
+		//현재 페이지를 기준으로 해서 다음 페이지가 존재하는지 물어보는 메소드
+		public boolean nextPage(String pageNumber) {
+			BoardDTO board = new BoardDTO();
+			Connection conn = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			String SQL = "Select * from board where boardGroup >= ?";
+			try {
+				conn = dataSource.getConnection();
+				pstmt = conn.prepareStatement(SQL);
+				pstmt.setInt(1, Integer.parseInt(pageNumber)*10);
+				rs = pstmt.executeQuery();
+				if(rs.next()) {
+					return true;
+					
+				}
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}finally {
+				try {
+					if(rs != null) rs.close();
+					if(pstmt != null) pstmt.close();
+					if(conn != null) conn.close();
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return false; //데이터 베이스 오류
+		}
+		//페이징 번호 기능
+		public int targetPage(String pageNumber) {
+			BoardDTO board = new BoardDTO();
+			Connection conn = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			String SQL = "Select COUNT(boardGroup) From board where boardGroup > ?";
+			try {
+				conn = dataSource.getConnection();
+				pstmt = conn.prepareStatement(SQL);
+				pstmt.setInt(1, (Integer.parseInt(pageNumber)-1)*10);
+				rs = pstmt.executeQuery();
+				if(rs.next()) {
+					return rs.getInt(1)/10;
+					
+				}
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}finally {
+				try {
+					if(rs != null) rs.close();
+					if(pstmt != null) pstmt.close();
+					if(conn != null) conn.close();
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return 0; //데이터 베이스 오류
 		}
 
 

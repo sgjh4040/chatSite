@@ -30,6 +30,15 @@
 		//초기화
 		BoardDAO boardDAO = new BoardDAO();
 		BoardDTO board = boardDAO.getBoard(boardID);
+		
+		//삭제가 된 게시물은 읽을 수 없게 만들어줌
+		if(board.getBoardAvailable() == 0){
+			session.setAttribute("messageType", "오류 메시지");
+			session.setAttribute("messageContent", "삭제된 게시물 입니다.");
+			response.sendRedirect("boardView.jsp");
+			return;
+		}
+		
 		boardDAO.hit(boardID);
 	
 	%>
@@ -151,7 +160,7 @@
 					<td style="background-color: #fafafa; color: #000000; width:80px;"><h5>작성날짜</h5></td>
 					<td><h5><%=board.getBoardDate()%></h5></td>
 					<td style="background-color: #fafafa; color: #000000; width:80px;"><h5>조회수</h5></td>
-					<td><h5><%=board.getBoardHit()%></h5></td>
+					<td><h5><%=board.getBoardHit()+1%></h5></td>
 				</tr>
 				<tr>
 					<td style="vertical-align: middle;min-height: 150px;background-color: #fafafa; color: #000000; width:80px;"><h5>글내용</h5></td>

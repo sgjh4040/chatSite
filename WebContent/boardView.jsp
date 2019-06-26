@@ -17,7 +17,24 @@
 			return;
 		}
 		
-		ArrayList<BoardDTO> boardList = new BoardDAO().getList();
+		String pageNumber = "1";
+		if(request.getParameter("pageNumber") != null){
+			pageNumber = request.getParameter("pageNumber");
+		}
+		//pageNumber 가 숫자일 경우만
+		try{
+			Integer.parseInt(pageNumber);
+		}catch(Exception e){
+			session.setAttribute("messageType", "오류 메시지");
+			session.setAttribute("messageContent", "페이지 번호가 잘못되었습니다.");
+			response.sendRedirect("boardView.jsp");
+			return;
+		}
+		
+		
+		
+		
+		ArrayList<BoardDTO> boardList = new BoardDAO().getList(pageNumber);
 	%>
 <head>
 <meta charset="UTF-8">
@@ -152,7 +169,19 @@
 					<%
 							}
 					%>
-					<%=board.getBoardTitle()%></a></td>
+					<%
+					if(board.getBoardAvailable()==0){
+						
+					%>
+						(삭제된 게시물입니다.)
+					<%
+					}else{
+					%>
+						<%=board.getBoardTitle() %>
+					
+					<%} %>
+					
+					</a></td>
 
 					<td><%=board.getUserID()%></td>
 					<td><%=board.getBoardDate()%></td>
@@ -163,8 +192,54 @@
 				}
 			%>	
 				
-				<tr>
-					<td colspan="5"><a href="boardWrite.jsp" class="btn btn-primary pull-right" type="submit">글쓰기</a></td>
+				<tr style="text-align: center;">
+					<td colspan="5"><a href="boardWrite.jsp" class="btn btn-primary pull-right" type="submit">글쓰기</a>
+					<!-- 페이징 기능 -->	
+					<ul class="pagination" style="margin: 0 auto;">
+					
+					
+					<%
+						int test = Integer.parseInt(pageNumber)/10;
+						int startPage = (Integer.parseInt(pageNumber)/10)*10 +1;
+						
+						if(Integer.parseInt(pageNumber)%10 == 0) startPage -=10;
+						int targetPage = new BoardDAO().targetPage(pageNumber);
+						if(startPage != 1){
+					%>
+					<li><a href="boardView.jsp?pageNumber=<%=startPage-1 %>"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+					<%
+						} else {			
+					%>
+						<li><span class="glyphicon glyphicon-chevron-left"style="color:gray;"></span></li>
+					<%
+						}
+					%>
+					<%
+					for(int i=startPage; i<=Integer.parseInt(pageNumber)+targetPage; i++){	
+						if(i< startPage+10){
+					%>
+					<li><a href="boardView.jsp?pageNumber=<%=i%>"><%=i %></a></li>
+					<%
+							}
+					}
+					if(targetPage+ Integer.parseInt(pageNumber)> startPage+9){
+						
+					
+					%>
+					<li><a href="boardView.jsp?pageNumber=<%=startPage+10%>"><span class="glyphicon glyphicon-chevron-right"></span></a></li>
+					
+					<%
+					}else {
+					%>
+					<li><span class="glyphicon glyphicon-chevron-right"style="color:gray;"></span></li>
+					
+					<%
+					}
+					%>
+					
+					</ul>
+					</td>
+					
 				</tr>
 			
 			</tbody>
@@ -173,6 +248,10 @@
 	
 	
 	</div>
+	<div>Integer.parseInt(pageNumber):<%=test%></div>
+	<div>pagenumber: <%=pageNumber%></div>
+	<div>test: <%=startPage%></div>
+	<div>targetPage: <%=targetPage%></div>
 
 	<%
 		String messageContent = null;

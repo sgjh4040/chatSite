@@ -36,11 +36,15 @@ thead th {
 tr td:first-child,
 tr th:first-child{
 	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
 }
 tr td:last-child,
 tr th:last-child{
 	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
 }
 /*모달 팝업창 관련 디자인 처리*/
